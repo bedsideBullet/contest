@@ -70,7 +70,7 @@ const RegistrationForm: React.FC = () => {
 
 		try {
 			const response = await axios.post(
-				"http://localhost:5000/api/register",
+				"http://localhost:5000/api/registration",
 				formData
 			);
 			alert("Registration successful: " + response.data.message);

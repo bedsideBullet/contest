@@ -17,6 +17,12 @@ export const registerUser = async (req: Request, res: Response) => {
 			year,
 			make,
 		} = req.body;
+
+		// Validate required fields
+		if (!firstName || !lastName || !email) {
+			return res.status(400).json({ message: "Missing required fields" });
+		}
+
 		const newUser = await prisma.user.create({
 			data: {
 				firstName,
