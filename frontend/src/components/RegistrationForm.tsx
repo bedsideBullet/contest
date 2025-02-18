@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Container,
 	Box,
@@ -9,6 +9,8 @@ import {
 	FormGroup,
 	FormControlLabel,
 	Checkbox,
+	Alert,
+	CircularProgress,
 } from "@mui/material";
 import StateSelect from "./StateSelect";
 import PhoneInput from "./PhoneInput";
@@ -31,6 +33,21 @@ const RegistrationForm: React.FC = () => {
 	});
 	const [emailError, setEmailError] = useState<string>("");
 	const [formError, setFormError] = useState<boolean>(false);
+	const [successMessage, setSuccessMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [isAgreed, setIsAgreed] = useState(false);
+
+	useEffect(() => {
+		if (successMessage || errorMessage) {
+			const timer = setTimeout(() => {
+				setSuccessMessage("");
+				setErrorMessage("");
+			}, 5000);
+
+			return () => clearTimeout(timer);
+		}
+	}, [successMessage, errorMessage]);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -40,6 +57,15 @@ const RegistrationForm: React.FC = () => {
 			...prevData,
 			[name]: value,
 		}));
+		if (
+			formError &&
+			formData.firstName &&
+			formData.lastName &&
+			formData.email &&
+			!emailError
+		) {
+			setFormError(false);
+		}
 	};
 
 	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,6 +76,9 @@ const RegistrationForm: React.FC = () => {
 		}));
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		setEmailError(!emailRegex.test(value) ? "Invalid email address" : "");
+		if (formError && formData.firstName && formData.lastName && !emailError) {
+			setFormError(false);
+		}
 	};
 
 	const handleSelectChange = (name: string, value: string) => {
@@ -59,12 +88,20 @@ const RegistrationForm: React.FC = () => {
 		}));
 	};
 
+	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setIsAgreed(e.target.checked);
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setSuccessMessage("");
+		setErrorMessage("");
+		setLoading(true);
 
 		const { firstName, lastName, email } = formData;
-		if (!firstName || !lastName || !email || emailError) {
+		if (!firstName || !lastName || !email || emailError || !isAgreed) {
 			setFormError(true);
+			setLoading(false);
 			return;
 		}
 
@@ -73,7 +110,7 @@ const RegistrationForm: React.FC = () => {
 				"http://localhost:5000/api/registration",
 				formData
 			);
-			alert("Registration successful: " + response.data.message);
+			setSuccessMessage("Registration successful: " + response.data.message);
 			setFormData({
 				firstName: "",
 				lastName: "",
@@ -89,11 +126,11 @@ const RegistrationForm: React.FC = () => {
 			setFormError(false);
 		} catch (error) {
 			const message = axios.isAxiosError(error)
-				? error.response?.data?.message || error.message
-				: error instanceof Error
-				? error.message
-				: "An unknown error occurred.";
-			alert("Registration failed: " + message);
+				? error.response?.data.message || "Unknown error"
+				: "An unexpected error occurred";
+			setErrorMessage("Registration failed: " + message);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -171,6 +208,8 @@ const RegistrationForm: React.FC = () => {
 						Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolore id
 						ab vel esse sit quae voluptatum perferendis nemo debitis fugit.
 					</Typography>
+					{successMessage && <Alert severity="success">{successMessage}</Alert>}
+					{errorMessage && <Alert severity="error">{errorMessage}</Alert>}
 					<Box
 						component="form"
 						onSubmit={handleSubmit}
@@ -217,6 +256,7 @@ const RegistrationForm: React.FC = () => {
 							</Grid>
 							<Grid item xs={12} sm={6}>
 								<TextField
+									required
 									fullWidth
 									id="city"
 									label="City"
@@ -274,6 +314,7 @@ const RegistrationForm: React.FC = () => {
 							</Grid>
 							<Grid item xs={12} sm={6}>
 								<TextField
+									required
 									fullWidth
 									id="vehicleModel"
 									label="Vehicle Model"
@@ -284,6 +325,7 @@ const RegistrationForm: React.FC = () => {
 							</Grid>
 							<Grid item xs={12}>
 								<TextField
+									required
 									fullWidth
 									id="VehicleNotes"
 									label="Vehicle Notes (motor swap etc...)"
@@ -297,7 +339,14 @@ const RegistrationForm: React.FC = () => {
 						</Grid>
 						<FormGroup sx={{ pt: 1 }}>
 							<FormControlLabel
-								control={<Checkbox color="primary" required />}
+								control={
+									<Checkbox
+										color="primary"
+										required
+										checked={isAgreed}
+										onChange={handleCheckboxChange}
+									/>
+								}
 								label="By checking this box, you confirm that you are 18 years or older."
 								sx={{
 									typography: "body2",
@@ -313,7 +362,11 @@ const RegistrationForm: React.FC = () => {
 							variant="contained"
 							color="error"
 							sx={{ mt: 1, mb: 2 }}
+							disabled={loading || !isAgreed}
 						>
+							{loading && (
+								<CircularProgress size={20} sx={{ color: "white", mr: 1 }} />
+							)}{" "}
 							Register
 						</Button>
 					</Box>
