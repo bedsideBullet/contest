@@ -1,0 +1,31 @@
+{
+  "registrations": [
+    {
+      "id": "a466",
+      "firstName": "FELICIA",
+      "lastName": "SMITH",
+      "email": "asfsa@asdf.co",
+      "vehicleModel": "JK",
+      "otherNotes": "sdfg",
+      "city": "LAKE HAVASU CITY",
+      "state": "Hawaii",
+      "phone": "(235) 546-5745",
+      "year": 1964,
+      "make": "Ford"
+    },
+    {
+      "id": "04c5",
+      "firstName": "Daniel",
+      "lastName": "Smith",
+      "email": "danjsmith3@gmzil.com",
+      "vehicleModel": "c10",
+      "otherNotes": "655\n",
+      "city": "azle",
+      "state": "Florida",
+      "phone": "(682) 262-0802",
+      "year": 1960,
+      "make": "GMC"
+    }
+  ],
+  "message": "Registration successful"
+}
