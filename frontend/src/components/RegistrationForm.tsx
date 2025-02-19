@@ -49,6 +49,8 @@ const RegistrationForm: React.FC = () => {
 		}
 	}, [successMessage, errorMessage]);
 
+	const CHARACTER_LIMIT = 250;
+
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => {
@@ -124,6 +126,7 @@ const RegistrationForm: React.FC = () => {
 				make: "",
 			});
 			setFormError(false);
+			setIsAgreed(false);
 		} catch (error) {
 			const message = axios.isAxiosError(error)
 				? error.response?.data.message || "Unknown error"
@@ -204,7 +207,7 @@ const RegistrationForm: React.FC = () => {
 					<Typography component="h1" variant="h3">
 						Contest Registration
 					</Typography>
-					<Typography component="p" variant="h6">
+					<Typography component="p" variant="subtitle1">
 						Lorem ipsum dolor, sit amet consectetur adipisicing elit. Dolore id
 						ab vel esse sit quae voluptatum perferendis nemo debitis fugit.
 					</Typography>
@@ -334,6 +337,8 @@ const RegistrationForm: React.FC = () => {
 									rows={2}
 									value={formData.otherNotes}
 									onChange={handleChange}
+									inputProps={{ maxLength: CHARACTER_LIMIT }}
+									helperText={`${formData.otherNotes.length}/${CHARACTER_LIMIT}`}
 								/>
 							</Grid>
 						</Grid>

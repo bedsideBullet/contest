@@ -10,24 +10,24 @@ const PhoneInput: React.FC<PhoneInputProps> = ({ value, onChange }) => {
 	const [error, setError] = useState<boolean>(false);
 
 	const validatePhoneNumber = (number: string) => {
-		const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/; // Matches (123) 456-7890 format
+		const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
 		return phoneRegex.test(number);
 	};
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const input = event.target.value;
-		// Format input as (123) 456-7890
-		const cleaned = input.replace(/\D/g, ""); // Remove non-numeric characters
+
+		const cleaned = input.replace(/\D/g, "");
 		const formatted = cleaned
 			.replace(/^(\d{3})(\d{3})(\d{4}).*/, "($1) $2-$3")
-			.slice(0, 14); // Limit to 14 characters (formatted length)
+			.slice(0, 14);
 
 		onChange(formatted);
 
 		if (formatted.length === 14 && validatePhoneNumber(formatted)) {
-			setError(false); // Clear error if valid
+			setError(false);
 		} else {
-			setError(true); // Set error if invalid
+			setError(true);
 		}
 	};
 
