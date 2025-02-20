@@ -21,6 +21,7 @@ import {
 	DialogContentText,
 	DialogTitle,
 	TextField,
+	TablePagination,
 } from "@mui/material";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -53,9 +54,11 @@ const AdminDash: React.FC = () => {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [authDialogOpen, setAuthDialogOpen] = useState(
 		!sessionStorage.getItem("auth")
-	); // Check session storage for auth state
+	);
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
 
 	const correctUsername = "admin";
 	const correctPassword = "PSCms2017!";
@@ -207,6 +210,17 @@ const AdminDash: React.FC = () => {
 		}
 	};
 
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
 	if (authDialogOpen) {
 		return (
 			<Dialog
@@ -313,46 +327,59 @@ const AdminDash: React.FC = () => {
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{registrations.map((registration) => (
-										<TableRow key={registration.id} hover>
-											<TableCell padding="checkbox">
-												<Checkbox
-													checked={checkedRows.has(registration.id)}
-													onChange={() => handleCheckboxChange(registration.id)}
-												/>
-											</TableCell>
-											{columns.slice(1, -1).map((column) => (
-												<TableCell key={column.accessor}>
-													{column.accessor === "otherNotes"
-														? (() => {
-																const value =
-																	registration[
-																		column.accessor as keyof Registration
-																	];
-																const text =
-																	typeof value === "string"
-																		? value
-																		: String(value);
-																const words = text?.split(" ") ?? [];
-																return words.length > 15
-																	? words.slice(0, 15).join(" ") + " ..."
-																	: text;
-														  })()
-														: registration[
-																column.accessor as keyof Registration
-														  ]}
+									{registrations
+										.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+										.map((registration) => (
+											<TableRow key={registration.id} hover>
+												<TableCell padding="checkbox">
+													<Checkbox
+														checked={checkedRows.has(registration.id)}
+														onChange={() =>
+															handleCheckboxChange(registration.id)
+														}
+													/>
 												</TableCell>
-											))}
-											<TableCell>
-												<Link to={`/registration/${registration.id}`}>
-													View details
-												</Link>
-											</TableCell>
-										</TableRow>
-									))}
+												{columns.slice(1, -1).map((column) => (
+													<TableCell key={column.accessor}>
+														{column.accessor === "otherNotes"
+															? (() => {
+																	const value =
+																		registration[
+																			column.accessor as keyof Registration
+																		];
+																	const text =
+																		typeof value === "string"
+																			? value
+																			: String(value);
+																	const words = text?.split(" ") ?? [];
+																	return words.length > 15
+																		? words.slice(0, 15).join(" ") + " ..."
+																		: text;
+															  })()
+															: registration[
+																	column.accessor as keyof Registration
+															  ]}
+													</TableCell>
+												))}
+												<TableCell>
+													<Link to={`/registration/${registration.id}`}>
+														View details
+													</Link>
+												</TableCell>
+											</TableRow>
+										))}
 								</TableBody>
 							</Table>
 						</TableContainer>
+						<TablePagination
+							rowsPerPageOptions={[5, 10, 25]}
+							component="div"
+							count={registrations.length}
+							rowsPerPage={rowsPerPage}
+							page={page}
+							onPageChange={handleChangePage}
+							onRowsPerPageChange={handleChangeRowsPerPage}
+						/>
 					</Paper>
 				</Container>
 			</Box>

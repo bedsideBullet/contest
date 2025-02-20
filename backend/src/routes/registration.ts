@@ -4,6 +4,7 @@ import {
 	getRegistrations,
 	getUserById,
 	deleteRegistrations,
+	updateRegistration,
 } from "../controllers/registrationController";
 
 const router = Router();
@@ -46,6 +47,17 @@ router.get("/:id", async (req, res) => {
 
 	try {
 		await getUserById(req, res);
+	} catch (error) {
+		console.error("Error in /registration/:id route:", error);
+		res.status(500).json({ message: "Server error" });
+	}
+});
+
+router.put("/:id", async (req, res) => {
+	console.log("Received a PUT request on /registration/:id");
+
+	try {
+		await updateRegistration(req, res);
 	} catch (error) {
 		console.error("Error in /registration/:id route:", error);
 		res.status(500).json({ message: "Server error" });
