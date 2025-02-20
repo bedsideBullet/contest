@@ -14,6 +14,13 @@ import {
 	Box,
 	Checkbox,
 	Button,
+	Snackbar,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	TextField,
 } from "@mui/material";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -37,31 +44,37 @@ const AdminDash: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [checkedRows, setCheckedRows] = useState<Set<number>>(new Set());
+	const [alert, setAlert] = useState<{
+		message: string;
+		severity: "error" | "info" | "success" | "warning";
+	}>({ message: "", severity: "info" });
+	const [alertOpen, setAlertOpen] = useState(false);
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [authDialogOpen, setAuthDialogOpen] = useState(true);
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+
+	const correctUsername = "admin";
+	const correctPassword = "PSCms2017!";
 
 	useEffect(() => {
-		const fetchRegistrations = async () => {
-			try {
-				const response = await axios.get(
-					"http://localhost:5000/api/registration/registrations"
-				);
-				setRegistrations(response.data);
-			} catch (err) {
-				setError("Failed to fetch registrations");
-			} finally {
-				setLoading(false);
-			}
-		};
+		if (!authDialogOpen) {
+			const fetchRegistrations = async () => {
+				try {
+					const response = await axios.get(
+						"http://localhost:5000/api/registration/registrations"
+					);
+					setRegistrations(response.data);
+				} catch (err) {
+					setError("Failed to fetch registrations");
+				} finally {
+					setLoading(false);
+				}
+			};
 
-		fetchRegistrations();
-	}, []);
-
-	if (loading) {
-		return <CircularProgress />;
-	}
-
-	if (error) {
-		return <Alert severity="error">{error}</Alert>;
-	}
+			fetchRegistrations();
+		}
+	}, [authDialogOpen]);
 
 	const columns = [
 		{ label: "", accessor: "checkbox" },
@@ -90,10 +103,6 @@ const AdminDash: React.FC = () => {
 	const handleDelete = async () => {
 		try {
 			const idsToDelete = Array.from(checkedRows);
-			if (idsToDelete.length === 0) {
-				alert("No registrations selected for deletion.");
-				return;
-			}
 
 			await axios.post("http://localhost:5000/api/registration/delete", {
 				ids: idsToDelete,
@@ -105,9 +114,20 @@ const AdminDash: React.FC = () => {
 				)
 			);
 			setCheckedRows(new Set());
+			setAlert({
+				message: "Selected registrations deleted successfully.",
+				severity: "success",
+			});
+			setAlertOpen(true);
 		} catch (err) {
 			setError("Failed to delete selected registrations.");
+			setAlert({
+				message: "Failed to delete selected registrations.",
+				severity: "error",
+			});
+			setAlertOpen(true);
 		}
+		setDialogOpen(false);
 	};
 
 	const handleExport = (format: "csv" | "excel") => {
@@ -116,7 +136,11 @@ const AdminDash: React.FC = () => {
 			: registrations;
 
 		if (dataToExport.length === 0) {
-			alert("No data available for export.");
+			setAlert({
+				message: "No data available for export.",
+				severity: "warning",
+			});
+			setAlertOpen(true);
 			return;
 		}
 
@@ -156,7 +180,81 @@ const AdminDash: React.FC = () => {
 		} else {
 			XLSX.writeFile(workbook, "registrations.csv", { bookType: "csv" });
 		}
+		setAlert({
+			message: `Data exported successfully as ${
+				format === "excel" ? "Excel" : "CSV"
+			}.`,
+			severity: "success",
+		});
+		setAlertOpen(true);
 	};
+
+	const handleAuthSubmit = () => {
+		if (username === correctUsername && password === correctPassword) {
+			setAuthDialogOpen(false);
+			setLoading(true);
+		} else {
+			setAlert({
+				message: "Incorrect username or password.",
+				severity: "error",
+			});
+			setAlertOpen(true);
+		}
+	};
+
+	if (authDialogOpen) {
+		return (
+			<Dialog
+				open={authDialogOpen}
+				aria-labelledby="auth-dialog-title"
+				aria-describedby="auth-dialog-description"
+			>
+				<DialogTitle id="auth-dialog-title">
+					{"Authentication Required"}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="auth-dialog-description">
+						Please enter your username and password to access the admin
+						dashboard.
+					</DialogContentText>
+					<TextField
+						autoFocus
+						margin="dense"
+						id="username"
+						label="Username"
+						type="text"
+						fullWidth
+						variant="standard"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+					/>
+					<TextField
+						margin="dense"
+						id="password"
+						label="Password"
+						type="password"
+						fullWidth
+						variant="standard"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleAuthSubmit} color="primary">
+						Submit
+					</Button>
+				</DialogActions>
+			</Dialog>
+		);
+	}
+
+	if (loading) {
+		return <CircularProgress />;
+	}
+
+	if (error) {
+		return <Alert severity="error">{error}</Alert>;
+	}
 
 	return (
 		<>
@@ -188,7 +286,7 @@ const AdminDash: React.FC = () => {
 						<Button
 							variant="contained"
 							color="error"
-							onClick={handleDelete}
+							onClick={() => setDialogOpen(true)}
 							disabled={checkedRows.size === 0}
 						>
 							Delete
@@ -248,6 +346,40 @@ const AdminDash: React.FC = () => {
 					</Paper>
 				</Container>
 			</Box>
+			<Snackbar
+				open={alertOpen}
+				autoHideDuration={6000}
+				onClose={() => setAlertOpen(false)}
+			>
+				<Alert
+					onClose={() => setAlertOpen(false)}
+					severity={alert.severity}
+					sx={{ width: "100%" }}
+				>
+					{alert.message}
+				</Alert>
+			</Snackbar>
+			<Dialog
+				open={dialogOpen}
+				onClose={() => setDialogOpen(false)}
+				aria-labelledby="alert-dialog-title"
+				aria-describedby="alert-dialog-description"
+			>
+				<DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="alert-dialog-description">
+						Are you sure you want to delete the selected registrations?
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setDialogOpen(false)} color="primary">
+						Cancel
+					</Button>
+					<Button onClick={handleDelete} color="primary" autoFocus>
+						Confirm
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</>
 	);
 };
