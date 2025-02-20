@@ -352,7 +352,7 @@ const RegistrationDetail: React.FC = () => {
 
 	const handleSave = async () => {
 		try {
-			await axios.put(
+			await axios.patch(
 				`http://localhost:5000/api/registration/${id}`,
 				registration
 			);

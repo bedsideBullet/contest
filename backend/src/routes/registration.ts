@@ -53,8 +53,8 @@ router.get("/:id", async (req, res) => {
 	}
 });
 
-router.put("/:id", async (req, res) => {
-	console.log("Received a PUT request on /registration/:id");
+router.patch("/:id", async (req, res) => {
+	console.log("Received a PATCH request on /registration/:id");
 
 	try {
 		await updateRegistration(req, res);
