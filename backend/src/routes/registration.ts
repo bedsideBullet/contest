@@ -23,7 +23,7 @@ router.post("/delete", async (req, res) => {
 	console.log("Received a POST request on /registration/delete");
 
 	try {
-		await deleteRegistrations(req, res); // Call the new delete function
+		await deleteRegistrations(req, res);
 	} catch (error) {
 		console.error("Error in /registration/delete route:", error);
 		res.status(500).json({ message: "Server error" });

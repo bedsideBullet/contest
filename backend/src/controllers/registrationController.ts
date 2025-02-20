@@ -18,9 +18,8 @@ export const registerUser = async (req: Request, res: Response) => {
 			make,
 		} = req.body;
 
-		console.log("Received user data:", req.body); // Log incoming request data
+		console.log("Received user data:", req.body);
 
-		// Validate required fields
 		if (!firstName || !lastName || !email) {
 			return res.status(400).json({ message: "Missing required fields" });
 		}

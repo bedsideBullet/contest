@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import { Link } from "react-router-dom";
 
 interface Registration {
 	id: number;
@@ -50,7 +51,9 @@ const AdminDash: React.FC = () => {
 	}>({ message: "", severity: "info" });
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [authDialogOpen, setAuthDialogOpen] = useState(true);
+	const [authDialogOpen, setAuthDialogOpen] = useState(
+		!sessionStorage.getItem("auth")
+	); // Check session storage for auth state
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -88,6 +91,7 @@ const AdminDash: React.FC = () => {
 		{ label: "Make", accessor: "make" },
 		{ label: "Model", accessor: "vehicleModel" },
 		{ label: "Other Notes", accessor: "otherNotes" },
+		{ label: "Details", accessor: "details" },
 	];
 
 	const handleCheckboxChange = (id: number) => {
@@ -193,6 +197,7 @@ const AdminDash: React.FC = () => {
 		if (username === correctUsername && password === correctPassword) {
 			setAuthDialogOpen(false);
 			setLoading(true);
+			sessionStorage.setItem("auth", "true"); // Set auth state in session storage
 		} else {
 			setAlert({
 				message: "Incorrect username or password.",
@@ -316,7 +321,7 @@ const AdminDash: React.FC = () => {
 													onChange={() => handleCheckboxChange(registration.id)}
 												/>
 											</TableCell>
-											{columns.slice(1).map((column) => (
+											{columns.slice(1, -1).map((column) => (
 												<TableCell key={column.accessor}>
 													{column.accessor === "otherNotes"
 														? (() => {
@@ -338,6 +343,11 @@ const AdminDash: React.FC = () => {
 														  ]}
 												</TableCell>
 											))}
+											<TableCell>
+												<Link to={`/registration/${registration.id}`}>
+													View details
+												</Link>
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>

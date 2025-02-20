@@ -26,31 +26,3 @@ app.use("/api", routes);
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);
 });
-
-// import express from "express";
-// import cors from "cors";
-// import routes from "./routes";
-// import dotenv from "dotenv";
-
-// dotenv.config();
-
-// const app = express();
-// const port = process.env.PORT || 5000;
-
-// app.use(
-// 	cors({
-// 		origin: "http://localhost:5173", // ✅ Correct frontend URL
-// 		credentials: true,
-// 		optionsSuccessStatus: 200,
-// 	})
-// );
-
-// app.options("*", cors());
-
-// // app.get("/api/registrations", routes);
-
-// app.use("/api", routes);
-
-// app.listen(port, () => {
-// 	console.log(`Server is running on port ${port}`);
-// });
