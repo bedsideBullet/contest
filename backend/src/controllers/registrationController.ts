@@ -66,9 +66,11 @@ export const deleteRegistrations = async (req: Request, res: Response) => {
 	}
 
 	try {
+		const numericIds = ids.map((id: string) => parseInt(id));
+
 		const deleteResponse = await prisma.user.deleteMany({
 			where: {
-				id: { in: ids },
+				id: { in: numericIds },
 			},
 		});
 
@@ -103,21 +105,18 @@ export const getUserById = async (req: Request, res: Response) => {
 		res.status(500).json({ message: "Error fetching user", error });
 	}
 };
-// untested code below
 export const updateRegistration = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
-		const dataToUpdate = req.body; // Get only the data to update from the request body
+		const dataToUpdate = req.body;
 
 		const updatedUser = await prisma.user.update({
 			where: { id: parseInt(id) },
-			data: dataToUpdate, // Directly use the data from the body
+			data: dataToUpdate,
 		});
 
 		res
 			.status(200)
 			.json({ message: "User updated successfully", user: updatedUser });
-	} catch (error) {
-		// ... error handling
-	}
+	} catch (error) {}
 };
