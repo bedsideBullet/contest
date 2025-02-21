@@ -26,6 +26,7 @@ import {
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { Link } from "react-router-dom";
+import AuthDialog from "./AuthDialog";
 
 interface Registration {
 	id: number;
@@ -64,8 +65,10 @@ const AdminDash: React.FC = () => {
 		Registration[]
 	>([]);
 
-	const correctUsername = "admin";
-	const correctPassword = "PSCms2017!";
+	const correctUsername =
+		import.meta.env.VITE_ADMIN_USERNAME || "defaultUsername";
+	const correctPassword =
+		import.meta.env.VITE_ADMIN_PASSWORD || "defaultPassword";
 
 	useEffect(() => {
 		if (!authDialogOpen) {
@@ -216,8 +219,7 @@ const AdminDash: React.FC = () => {
 		if (username === correctUsername && password === correctPassword) {
 			setAuthDialogOpen(false);
 			setLoading(true);
-			sessionStorage.setItem("auth", "true"); // Set auth state in session storage
-		} else {
+			sessionStorage.setItem("auth", "true");
 			setAlert({
 				message: "Incorrect username or password.",
 				severity: "error",
@@ -239,47 +241,14 @@ const AdminDash: React.FC = () => {
 
 	if (authDialogOpen) {
 		return (
-			<Dialog
+			<AuthDialog
 				open={authDialogOpen}
-				aria-labelledby="auth-dialog-title"
-				aria-describedby="auth-dialog-description"
-			>
-				<DialogTitle id="auth-dialog-title">
-					{"Authentication Required"}
-				</DialogTitle>
-				<DialogContent>
-					<DialogContentText id="auth-dialog-description">
-						Please enter your username and password to access the admin
-						dashboard.
-					</DialogContentText>
-					<TextField
-						autoFocus
-						margin="dense"
-						id="username"
-						label="Username"
-						type="text"
-						fullWidth
-						variant="standard"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-					/>
-					<TextField
-						margin="dense"
-						id="password"
-						label="Password"
-						type="password"
-						fullWidth
-						variant="standard"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-					/>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleAuthSubmit} color="primary">
-						Submit
-					</Button>
-				</DialogActions>
-			</Dialog>
+				username={username}
+				password={password}
+				setUsername={setUsername}
+				setPassword={setPassword}
+				onSubmit={handleAuthSubmit}
+			/>
 		);
 	}
 
