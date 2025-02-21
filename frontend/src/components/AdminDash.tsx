@@ -59,6 +59,10 @@ const AdminDash: React.FC = () => {
 	const [password, setPassword] = useState("");
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [filteredRegistrations, setFilteredRegistrations] = useState<
+		Registration[]
+	>([]);
 
 	const correctUsername = "admin";
 	const correctPassword = "PSCms2017!";
@@ -71,6 +75,7 @@ const AdminDash: React.FC = () => {
 						"http://localhost:5000/api/registration/registrations"
 					);
 					setRegistrations(response.data);
+					setFilteredRegistrations(response.data);
 				} catch (err) {
 					setError("Failed to fetch registrations");
 				} finally {
@@ -81,6 +86,15 @@ const AdminDash: React.FC = () => {
 			fetchRegistrations();
 		}
 	}, [authDialogOpen]);
+
+	useEffect(() => {
+		const filtered = registrations.filter((registration) =>
+			`${registration.firstName} ${registration.lastName} ${registration.email} ${registration.phone}`
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase())
+		);
+		setFilteredRegistrations(filtered);
+	}, [searchQuery, registrations]);
 
 	const columns = [
 		{ label: "", accessor: "checkbox" },
@@ -139,8 +153,10 @@ const AdminDash: React.FC = () => {
 
 	const handleExport = (format: "csv" | "excel") => {
 		const dataToExport = Array.from(checkedRows).length
-			? registrations.filter((registration) => checkedRows.has(registration.id))
-			: registrations;
+			? filteredRegistrations.filter((registration) =>
+					checkedRows.has(registration.id)
+			  )
+			: filteredRegistrations;
 
 		if (dataToExport.length === 0) {
 			setAlert({
@@ -210,7 +226,7 @@ const AdminDash: React.FC = () => {
 		}
 	};
 
-	const handleChangePage = (event: unknown, newPage: number) => {
+	const handleChangePage = (_: unknown, newPage: number) => {
 		setPage(newPage);
 	};
 
@@ -280,19 +296,25 @@ const AdminDash: React.FC = () => {
 			<Box
 				sx={{
 					display: "flex",
+					top: 0,
+					left: 0,
 					flexDirection: "column",
 					alignItems: "center",
 					justifyContent: "flex-start",
 					width: "100vw",
 					minHeight: "100vh",
-					bgcolor: "background.default",
+					backgroundImage: "url('src/assets/untitled (26).png')",
+					backgroundSize: "cover",
+					backgroundPosition: "center",
+					backgroundRepeat: "no-repeat",
+					zIndex: -1,
 					padding: "2rem",
 				}}
 			>
 				<Typography variant="h2" gutterBottom align="center">
 					Registrations
 				</Typography>
-				<Container maxWidth="xl" sx={{ mt: 10 }}>
+				<Container maxWidth="xl">
 					<Box
 						sx={{
 							display: "flex",
@@ -310,10 +332,25 @@ const AdminDash: React.FC = () => {
 						>
 							Delete
 						</Button>
+
 						<Button variant="contained" onClick={() => handleExport("csv")}>
 							Export
 						</Button>
 					</Box>
+					<TextField
+						label="Search Name, Email, or Phone"
+						fullWidth
+						variant="outlined"
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						sx={{
+							mr: 2,
+							mb: 2,
+							bgcolor: "background.paper",
+							borderRadius: 2,
+						}}
+					/>
+
 					<Paper elevation={5} sx={{ padding: "2rem", borderRadius: 2 }}>
 						<TableContainer>
 							<Table>
@@ -327,7 +364,7 @@ const AdminDash: React.FC = () => {
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{registrations
+									{filteredRegistrations
 										.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 										.map((registration) => (
 											<TableRow key={registration.id} hover>
@@ -374,7 +411,7 @@ const AdminDash: React.FC = () => {
 						<TablePagination
 							rowsPerPageOptions={[5, 10, 25]}
 							component="div"
-							count={registrations.length}
+							count={filteredRegistrations.length}
 							rowsPerPage={rowsPerPage}
 							page={page}
 							onPageChange={handleChangePage}

@@ -44,6 +44,7 @@ const RegistrationDetail: React.FC = () => {
 		useState<AlertColor>("success");
 	const [editMode, setEditMode] = useState(false);
 	const [dialogOpen, setDialogOpen] = useState(false);
+
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -124,12 +125,18 @@ const RegistrationDetail: React.FC = () => {
 			<Box
 				sx={{
 					display: "flex",
+					top: 0,
+					left: 0,
 					flexDirection: "column",
 					alignItems: "center",
 					justifyContent: "flex-start",
 					width: "100vw",
 					minHeight: "100vh",
-					bgcolor: "background.default",
+					backgroundImage: "url('src/assets/untitled (26).png')",
+					backgroundSize: "cover",
+					backgroundPosition: "center",
+					backgroundRepeat: "no-repeat",
+					zIndex: -1,
 					padding: "2rem",
 				}}
 			>
