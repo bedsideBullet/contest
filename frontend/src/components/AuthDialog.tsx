@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
 	Dialog,
 	DialogActions,
@@ -7,6 +7,8 @@ import {
 	DialogTitle,
 	TextField,
 	Button,
+	Alert,
+	Snackbar,
 } from "@mui/material";
 
 interface AuthDialogProps {
@@ -15,7 +17,7 @@ interface AuthDialogProps {
 	password: string;
 	setUsername: (value: string) => void;
 	setPassword: (value: string) => void;
-	onSubmit: () => void;
+	onSubmit: (username: string, password: string) => boolean;
 }
 
 const AuthDialog: React.FC<AuthDialogProps> = ({
@@ -26,9 +28,26 @@ const AuthDialog: React.FC<AuthDialogProps> = ({
 	setPassword,
 	onSubmit,
 }) => {
+	const [alert, setAlert] = useState<{
+		message: string;
+		severity: "error" | "info" | "success" | "warning";
+	}>({ message: "", severity: "info" });
+	const [alertOpen, setAlertOpen] = useState(false);
+
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.key === "Enter") {
-			onSubmit();
+			handleSubmit();
+		}
+	};
+
+	const handleSubmit = () => {
+		const success = onSubmit(username, password);
+		if (!success) {
+			setAlert({
+				message: "Incorrect username or password.",
+				severity: "error",
+			});
+			setAlertOpen(true);
 		}
 	};
 
@@ -69,10 +88,23 @@ const AuthDialog: React.FC<AuthDialogProps> = ({
 				/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={onSubmit} color="primary">
+				<Button onClick={handleSubmit} color="primary">
 					Submit
 				</Button>
 			</DialogActions>
+			<Snackbar
+				open={alertOpen}
+				autoHideDuration={6000}
+				onClose={() => setAlertOpen(false)}
+			>
+				<Alert
+					onClose={() => setAlertOpen(false)}
+					severity={alert.severity}
+					sx={{ width: "100%" }}
+				>
+					{alert.message}
+				</Alert>
+			</Snackbar>
 		</Dialog>
 	);
 };

@@ -215,17 +215,14 @@ const AdminDash: React.FC = () => {
 		setAlertOpen(true);
 	};
 
-	const handleAuthSubmit = () => {
+	const handleAuthSubmit = (username: string, password: string) => {
 		if (username === correctUsername && password === correctPassword) {
 			setAuthDialogOpen(false);
 			setLoading(true);
 			sessionStorage.setItem("auth", "true");
-			setAlert({
-				message: "Incorrect username or password.",
-				severity: "error",
-			});
-			setAlertOpen(true);
+			return true;
 		}
+		return false;
 	};
 
 	const handleChangePage = (_: unknown, newPage: number) => {
