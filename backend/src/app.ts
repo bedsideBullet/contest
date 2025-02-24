@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 
 app.use(
 	cors({
-		origin: "https://contest-1.onrender.com/",
+		origin: process.env.FRONTEND_URL,
 		credentials: true,
 		optionsSuccessStatus: 200,
 	})
