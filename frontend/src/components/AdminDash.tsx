@@ -75,7 +75,9 @@ const AdminDash: React.FC = () => {
 			const fetchRegistrations = async () => {
 				try {
 					const response = await axios.get(
-						"http://localhost:5000/api/registration/registrations"
+						`${
+							import.meta.env.VITE_API_BASE_URL
+						}/api/registration/registrations`
 					);
 					setRegistrations(response.data);
 					setFilteredRegistrations(response.data);
