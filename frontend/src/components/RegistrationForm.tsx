@@ -109,7 +109,7 @@ const RegistrationForm: React.FC = () => {
 
 		try {
 			const response = await axios.post(
-				"http://localhost:5000/api/registration",
+				`${import.meta.env.VITE_API_BASE_URL}/api/registration`,
 				formData
 			);
 			setSuccessMessage("Registration successful: " + response.data.message);
@@ -154,7 +154,7 @@ const RegistrationForm: React.FC = () => {
 			>
 				<Box
 					component="img"
-					src="public/PSC_Logo.png"
+					src="./src/assets/PSC_Logo.png"
 					alt="PSC Logo"
 					sx={{
 						height: 75,
@@ -172,7 +172,7 @@ const RegistrationForm: React.FC = () => {
 					left: 0,
 					width: "100vw",
 					height: "100vh",
-					backgroundImage: "url('public/Untitled (26).png')",
+					backgroundImage: "url('./src/assets/BGImg.png')",
 					backgroundSize: "cover",
 					backgroundPosition: "center",
 					backgroundRepeat: "no-repeat",
