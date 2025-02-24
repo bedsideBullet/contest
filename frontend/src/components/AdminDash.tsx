@@ -75,9 +75,7 @@ const AdminDash: React.FC = () => {
 			const fetchRegistrations = async () => {
 				try {
 					const response = await axios.get(
-						`${
-							import.meta.env.VITE_API_BASE_URL
-						}/api/registration/registrations`
+						"https://contest-7b07.onrender.com/api/registration/registrations"
 					);
 					setRegistrations(response.data);
 					setFilteredRegistrations(response.data);
@@ -130,9 +128,12 @@ const AdminDash: React.FC = () => {
 		try {
 			const idsToDelete = Array.from(checkedRows);
 
-			await axios.post("http://localhost:5000/api/registration/delete", {
-				ids: idsToDelete,
-			});
+			await axios.post(
+				"https://contest-7b07.onrender.com/api/registration/delete",
+				{
+					ids: idsToDelete,
+				}
+			);
 
 			setRegistrations((prevRegistrations) =>
 				prevRegistrations.filter(
