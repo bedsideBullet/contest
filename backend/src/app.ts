@@ -31,6 +31,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import routes from "./routes";
 import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
@@ -49,7 +50,13 @@ app.options("*", cors());
 
 app.use(express.json());
 
+app.use(express.static(path.join(__dirname, "../dist")));
+
 app.use("/api", routes);
+
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "../dist", "index.html"));
+});
 
 app.listen(port, "0.0.0.0", () => {
 	console.log(`Server is running on port ${port}`);
