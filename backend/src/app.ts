@@ -28,10 +28,9 @@
 // });
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
-import path from "path";
 import routes from "./routes";
 import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
@@ -40,25 +39,26 @@ const port = parseInt(process.env.PORT || "10000", 10);
 
 app.use(
 	cors({
-		origin: process.env.FRONTEND_URL,
+		origin: process.env.FRONTEND_URL || "https://contestfront.onrender.com",
 		credentials: true,
 		optionsSuccessStatus: 200,
 	})
 );
 
 app.options("*", cors());
-
 app.use(express.json());
 
-// Serve static files from the frontend build directory
-app.use(express.static(path.join(__dirname, "../../frontend/build")));
+// Serve static files from build folder
+app.use(express.static(path.join(__dirname, "../build")));
 
 // API routes
 app.use("/api", routes);
 
-// All other routes should serve the frontend's index.html
+// Catch-all route for SPA
 app.get("*", (req, res) => {
-	res.sendFile(path.join(__dirname, "../../frontend/build/index.html"));
+	const filePath = path.join(__dirname, "../build/index.html");
+	console.log(`Serving: ${filePath}`); // Debug log
+	res.sendFile(filePath);
 });
 
 app.listen(port, "0.0.0.0", () => {
