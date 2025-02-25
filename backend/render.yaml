@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: contest-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: FRONTEND_URL
+        value: https://contestfront.onrender.com
+      - key: API_BASE_URL
+        value: https://contest-5z7l.onrender.com
